@@ -6,22 +6,61 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
+import { useEffect, useState } from "react";
+import axiosConfig from "../../API/axiosConfig";
 
 const Team = () => {
+  const [users, setUsers] = useState({});
+
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const getUsers = async () => {
+      try {
+        const response = await axiosConfig.get("/users", {
+          signal: controller.signal,
+        });
+        console.log(response.data);
+        isMounted && setUsers(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getUsers();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, []);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const columns = [
-    { field: "id", headerName: "ID" },
     {
-      field: "name",
-      headerName: "Name",
+      field: "id",
+      headerName: "ID",
+      flex: 1,
+      headerAlign: "left",
+    },
+    {
+      field: "firstName",
+      headerName: "First name",
       flex: 1,
       cellClassName: "name-column--cell",
     },
     {
-      field: "age",
-      headerName: "Age",
+      field: "lastName",
+      headerName: "Last name",
+      flex: 1,
+      cellClassName: "name-column--cell",
+    },
+    {
+      field: "dateOfBirth",
+      headerName: "Birth date",
       type: "number",
       headerAlign: "left",
       align: "left",
@@ -37,29 +76,32 @@ const Team = () => {
       flex: 1,
     },
     {
-      field: "access",
+      field: "role",
       headerName: "Access level",
       flex: 1,
-      renderCell: ({ row: { access } }) => {
+      headerAlign: "left",
+      renderCell: ({ row: { role } }) => {
         return (
           <Box
-            width="60%"
-            m="0 auto"
-            p="5px"
-            display="flex"
-            justifyContent="center"
-            backgroundColor={
-              access === "admin"
-                ? colors.greenAccent[600]
-                : colors.greenAccent[700]
-            }
-            borderRadius="4px"
+            sx={{
+              width: "60%",
+              m: "0 auto",
+              p: "5px",
+              display: "flex",
+              justifyContent: "center",
+              backgroundColor:
+                role === "ADMIN"
+                  ? colors.greenAccent[600]
+                  : colors.greenAccent[700],
+              borderRadius: "4px",
+            }}
+            onClick={() => console.log("Test")}
           >
-            {access === "admin" && <AdminPanelSettingsOutlinedIcon />}
-            {access === "manager" && <SecurityOutlinedIcon />}
-            {access === "user" && <LockOpenOutlinedIcon />}
+            {role === "ADMIN" && <AdminPanelSettingsOutlinedIcon />}
+            {/* {role === "manager" && <SecurityOutlinedIcon />} */}
+            {role === "USER" && <LockOpenOutlinedIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-              {access}
+              {role}
             </Typography>
           </Box>
         );
@@ -69,7 +111,7 @@ const Team = () => {
 
   return (
     <Box m="20px">
-      <Header title="TEAM" subtitle="Managing the team members" />
+      <Header title="Users" subtitle="Managing website users" />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -96,7 +138,7 @@ const Team = () => {
           },
         }}
       >
-        <DataGrid rows={mockDataTeam} columns={columns} />
+        <DataGrid rows={users} columns={columns} />
       </Box>
     </Box>
   );

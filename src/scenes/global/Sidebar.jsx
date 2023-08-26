@@ -77,9 +77,9 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}>
+                {/* <Typography variant="h3" color={colors.grey[100]}>
                   XDEV ADMIN
-                </Typography>
+                </Typography> */}
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
                 </IconButton>
@@ -90,15 +90,15 @@ const Sidebar = () => {
           {/* USER */}
           {!isCollapsed && (
             <Box mb="25px">
-              <Box display="flex" justifyContent="center" alignItems="center">
+              {/* <Box display="flex" justifyContent="center" alignItems="center">
                 <img
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={`../../assets/user.jpg`}
+                  src={`../../assets/LOGO.svg`}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
-              </Box>
+              </Box> */}
               <Box textAlign="center">
                 <Typography
                   variant="h2"
@@ -106,10 +106,10 @@ const Sidebar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  Tin Vukšan
+                  X DEV
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  XDEV ADMIN
+                  ADMIN DASHBOARD
                 </Typography>
               </Box>
             </Box>
@@ -118,7 +118,7 @@ const Sidebar = () => {
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Dashboard"
-              to="/"
+              to="/home"
               icon={<HomeOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -131,21 +131,21 @@ const Sidebar = () => {
               Data
             </Typography>
             <Item
-              title="Manage Team"
+              title="Manage Users"
               to="/team"
               icon={<PeopleOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Contacts Info"
+              title="Speakers info"
               to="/contacts"
               icon={<ContactsOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Invoice Balances"
+              title="Ticket Receipts"
               to="/invoices"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}
@@ -160,7 +160,7 @@ const Sidebar = () => {
               Pages
             </Typography>
             <Item
-              title="Profile form"
+              title="Add speaker"
               to="/form"
               icon={<PersonOutlinedIcon />}
               selected={selected}

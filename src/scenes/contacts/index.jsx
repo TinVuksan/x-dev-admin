@@ -1,17 +1,43 @@
 import { Box } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import { mockDataContacts } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import axiosConfig from "../../API/axiosConfig";
+import { useState, useEffect } from "react";
 
 const Contacts = () => {
+  const [speakers, setSpeakers] = useState({});
+
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const getSpeakers = async () => {
+      try {
+        const response = await axiosConfig.get("/speakers/get", {
+          signal: controller.signal,
+        });
+        console.log(response.data);
+        isMounted && setSpeakers(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getSpeakers();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, []);
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const columns = [
-    { field: "id", headerName: "ID", flex: 0.5 },
-    { field: "registrarId", headerName: "Registrar ID" },
+    { field: "id", headerName: "ID", flex: 1 },
     {
       field: "name",
       headerName: "Name",
@@ -19,42 +45,25 @@ const Contacts = () => {
       cellClassName: "name-column--cell",
     },
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      headerAlign: "left",
-      align: "left",
-    },
-    {
-      field: "phone",
-      headerName: "Phone number",
-      flex: 1,
-    },
-    {
       field: "email",
       headerName: "Email",
       flex: 1,
     },
     {
-      field: "address",
-      headerName: "Address",
+      field: "country",
+      headerName: "Country",
       flex: 1,
     },
     {
-      field: "city",
-      headerName: "City",
-      flex: 1,
-    },
-    {
-      field: "zipCode",
-      headerName: "ZipCode",
+      field: "position",
+      headerName: "Position",
       flex: 1,
     },
   ];
 
   return (
     <Box m="20px">
-      <Header title="CONTACTS" subtitle="List of contacts" />
+      <Header title="SPEAKERS" subtitle="List of speakers" />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -72,6 +81,7 @@ const Contacts = () => {
             backgroundColor: colors.blueAccent[700],
             borderBottom: "none",
           },
+
           "& .MuiDataGrid-virtualScroller": {
             backgroundColor: colors.primary[400],
           },
@@ -85,7 +95,7 @@ const Contacts = () => {
         }}
       >
         <DataGrid
-          rows={mockDataContacts}
+          rows={speakers}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
         />
