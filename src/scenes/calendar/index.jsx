@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatDate } from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -15,35 +15,73 @@ import {
 } from "@mui/material";
 import Header from "../../components/Header";
 import { tokens } from "../../theme";
+import axiosConfig from "../../API/axiosConfig";
 
 const Calendar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [currentEvents, setCurrentEvents] = useState([]);
 
-  const handleDateClick = (selected) => {
-    const title = prompt("Please enter a new title for your event!"); //TODO MOŽDA UBACITI TU MODAL AKO BUDE VREMENA
-    const calendarApi = selected.view.calendar;
-    calendarApi.unselect();
+  useEffect(() => {
+    fetchEvents(); // Fetch events when the component mounts
+  }, []);
 
-    if (title) {
-      calendarApi.addEvent({
-        id: `${selected.dateString}-${title}`,
-        title,
-        start: selected.startStr,
-        end: selected.endStr,
-        allDay: selected.allDay,
-      });
+  const preprocessEvents = (eventsFromApi) => {
+    return eventsFromApi.map((event) => {
+      return {
+        id: event.id, // Replace with the actual id property from your API response
+        title: event.title,
+        start: event.startDate, // Convert to Date object
+        end: event.endDate, // Convert to Date object
+        allDay: event.allDay,
+      };
+    });
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axiosConfig.get("/events/get");
+      const processedEvents = preprocessEvents(response.data);
+      setCurrentEvents(processedEvents);
+    } catch (error) {
+      console.error("Error fetching events: ", error);
     }
   };
 
-  const handleEventClick = (selected) => {
+  const handleDateClick = async (selected) => {
+    const title = prompt("Please enter a new title for your event!");
+
+    if (title) {
+      const eventData = {
+        title,
+        startDate: selected.startStr,
+        endDate: selected.endStr,
+        allDay: selected.allDay,
+      };
+
+      try {
+        const response = await axiosConfig.post("/events/add", eventData);
+        if (response.status === 201) {
+          fetchEvents();
+        }
+      } catch (error) {
+        console.error("Error creating event: ", error);
+      }
+    }
+  };
+
+  const handleEventClick = async (selected) => {
     if (
       window.confirm(
         `Are you sure you want to delete this event? '${selected.event.title}'?`
       )
     ) {
-      selected.event.remove();
+      try {
+        await axiosConfig.delete(`/events/delete/${selected.event.id}`);
+        fetchEvents();
+      } catch (error) {
+        console.error("Error deleting the event: ", error);
+      }
     }
   };
 
@@ -82,6 +120,24 @@ const Calendar = () => {
                     </Typography>
                   }
                 />
+                <ListItemText
+                  primary=" "
+                  secondary={
+                    <Typography>
+                      {event.allDay
+                        ? "All day"
+                        : formatDate(event.start, {
+                            timeZone: "Europe/Zagreb",
+                            hour: "2-digit",
+                          }) +
+                          "-" +
+                          formatDate(event.end, {
+                            timeZone: "Europe/Zagreb",
+                            hour: "2-digit",
+                          })}
+                    </Typography>
+                  }
+                />
               </ListItem>
             ))}
           </List>
@@ -100,7 +156,7 @@ const Calendar = () => {
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth",
+              right: "dayGridMonth,timeGridWeek,timeGridDay",
             }}
             initialView="dayGridMonth"
             editable={true}
@@ -109,10 +165,8 @@ const Calendar = () => {
             dayMaxEvents={true}
             select={handleDateClick}
             eventClick={handleEventClick}
-            eventsSet={(events) => setCurrentEvents(events)}
-            initialEvents={[
-              { id: "1234", title: "All-day event", date: "2023-05-22" },
-            ]}
+            timeZone="Europe/Zagreb"
+            events={currentEvents}
           />
         </Box>
       </Box>
