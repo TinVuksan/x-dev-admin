@@ -1,11 +1,11 @@
 import { Box, Button, TextField } from "@mui/material";
-import { Formik, useFormik } from "formik";
+import { useFormik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import axiosConfig from "../../API/axiosConfig";
 import { useNavigate } from "react-router-dom";
-import Dropzone, { useDropzone } from "react-dropzone";
+import Dropzone from "react-dropzone";
 import { useState } from "react";
 import "./style.css";
 
@@ -53,42 +53,12 @@ const Form = () => {
           withCredentials: true,
         });
 
-        navigate("/contacts");
+        navigate("/speakers");
       } catch (err) {
         console.log("Error creating speakear: ", err);
       }
     },
   });
-
-  // const handleFormSubmit = async (values) => {
-  //   try {
-  //     const response = await axiosConfig.post(
-  //       CREATE_SPEAKER_URL,
-  //       JSON.stringify(values),
-  //       {
-  //         headers: { "Content-Type": "application/json" },
-  //         withCredentials: true,
-  //       }
-  //     );
-  //     console.log(response.data);
-  //     navigate("/contacts");
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
-
-  // const { getRootProps, getInputProps, isDragActive } = useDropzone({
-  //   accept: "image/*",
-  //   onDrop: (acceptedFiles) => {
-  //     const image = acceptedFiles[0];
-  //     const reader = new FileReader();
-  //     reader.readAsDataURL(image);
-  //     formik.setFieldValue("image", reader.result.split(",")[1]);
-  //     console.log(image);
-  //     console.log(acceptedFiles);
-  //     setPreviewImage(URL.createObjectURL(image)); //Create preview URL
-  //   },
-  // });
 
   return (
     <Box m="20px">

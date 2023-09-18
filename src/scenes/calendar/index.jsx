@@ -16,11 +16,17 @@ import {
 import Header from "../../components/Header";
 import { tokens } from "../../theme";
 import axiosConfig from "../../API/axiosConfig";
+import PromptDialog from "./PromptDialog";
 
 const Calendar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [currentEvents, setCurrentEvents] = useState([]);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventSpeaker, setEventSpeaker] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     fetchEvents(); // Fetch events when the component mounts
@@ -31,6 +37,7 @@ const Calendar = () => {
       return {
         id: event.id, // Replace with the actual id property from your API response
         title: event.title,
+        speaker: event.speaker,
         start: event.startDate, // Convert to Date object
         end: event.endDate, // Convert to Date object
         allDay: event.allDay,
@@ -48,15 +55,20 @@ const Calendar = () => {
     }
   };
 
-  const handleDateClick = async (selected) => {
-    const title = prompt("Please enter a new title for your event!");
+  const handleDateClick = async (selectedInfo) => {
+    setIsOpen(true);
+    setSelectedDate(selectedInfo);
+  };
 
-    if (title) {
+  const handleEventSubmission = async () => {
+    if (eventTitle && eventSpeaker && selectedDate) {
+      const { startStr, endStr, allDay } = selectedDate;
       const eventData = {
-        title,
-        startDate: selected.startStr,
-        endDate: selected.endStr,
-        allDay: selected.allDay,
+        title: eventTitle,
+        speaker: eventSpeaker,
+        startDate: startStr,
+        endDate: endStr,
+        allDay,
       };
 
       try {
@@ -170,6 +182,15 @@ const Calendar = () => {
           />
         </Box>
       </Box>
+      <PromptDialog
+        eventSpeaker={eventSpeaker}
+        eventTitle={eventTitle}
+        setEventSpeaker={setEventSpeaker}
+        setEventTitle={setEventTitle}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        onSubmit={handleEventSubmission}
+      />
     </Box>
   );
 };

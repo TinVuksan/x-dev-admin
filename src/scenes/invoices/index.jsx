@@ -3,41 +3,62 @@ import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataInvoices } from "../../data/mockData";
 import Header from "../../components/Header";
+import { useState, useEffect } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { formatDate } from "../global/utils";
 
 const Invoices = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const axiosPrivate = useAxiosPrivate();
+  const [receipts, setReceipts] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const getReceipts = async () => {
+      try {
+        const response = await axiosPrivate.get("/receipts/all", {
+          signal: controller.signal,
+        });
+        isMounted && setReceipts(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getReceipts();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, []);
 
   const columns = [
-    { field: "id", headerName: "ID" },
+    { field: "id", headerName: "Receipt Id" },
     {
-      field: "name",
-      headerName: "Name",
+      field: "ticket.id",
+      headerName: "Ticket Id",
       flex: 1,
       cellClassName: "name-column--cell",
+      valueGetter: (params) => params.row.ticket.id,
     },
     {
-      field: "phone",
-      headerName: "Phone number",
+      field: "ticket.type",
+      headerName: "Ticket type",
       flex: 1,
+      valueGetter: (params) => params.row.ticket.type,
     },
     {
-      field: "email",
-      headerName: "Email",
-      flex: 1,
-    },
-    {
-      field: "cost",
+      field: "ticket.price",
       headerName: "Cost",
       flex: 1,
-      renderCell: (params) => {
-        <Typography color={colors.greenAccent[500]}>
-          ${params.row.cost}
-        </Typography>;
-      },
+      valueGetter: (params) => `${params.row.ticket.price} $`,
     },
     {
-      field: "date",
+      field: "purchaseDate",
       headerName: "Date",
       flex: 1,
     },
@@ -75,7 +96,7 @@ const Invoices = () => {
           },
         }}
       >
-        <DataGrid checkboxSelection rows={mockDataInvoices} columns={columns} />
+        <DataGrid checkboxSelection rows={receipts} columns={columns} />
       </Box>
     </Box>
   );

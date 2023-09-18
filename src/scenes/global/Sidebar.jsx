@@ -16,6 +16,7 @@ import PieChartOutlinedIcon from "@mui/icons-material/PieChartOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import NewsOutlinedIcon from "@mui/icons-material/NewspaperOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -139,7 +140,7 @@ const Sidebar = () => {
             />
             <Item
               title="Speakers info"
-              to="/contacts"
+              to="/speakers"
               icon={<ContactsOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -163,6 +164,13 @@ const Sidebar = () => {
               title="Add speaker"
               to="/form"
               icon={<PersonOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Add news"
+              to="/news"
+              icon={<NewsOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />

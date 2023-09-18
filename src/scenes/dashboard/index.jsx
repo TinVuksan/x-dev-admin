@@ -2,6 +2,7 @@ import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { mockTransactions } from "../../data/mockData";
+import { geoFeatures } from "../../data/mockGeoFeatures";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
@@ -14,11 +15,19 @@ import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
 import Sidebar from "../global/Sidebar";
 import useRefreshToken from "../../hooks/useRefreshToken";
+import { useEffect } from "react";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const refresh = useRefreshToken();
+
+  useEffect(() => {
+    const extractedData = geoFeatures.features.map((item) => ({
+      [item.properties.name.replace(/["']/g, "")]: item.id,
+    }));
+    console.log(extractedData);
+  }, []);
 
   return (
     <>

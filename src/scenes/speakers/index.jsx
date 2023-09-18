@@ -5,20 +5,26 @@ import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
 import axiosConfig from "../../API/axiosConfig";
 import { useState, useEffect } from "react";
+import useAuth from "../../hooks/useAuth";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const Contacts = () => {
   const [speakers, setSpeakers] = useState({});
 
+  const axiosPrivate = useAxiosPrivate();
+  const { auth } = useAuth();
+
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-
+    console.log("GetSpeakers prije requesta auth: ", auth);
     const getSpeakers = async () => {
       try {
-        const response = await axiosConfig.get("/speakers/get", {
+        const response = await axiosPrivate.get("/speakers/get", {
           signal: controller.signal,
         });
         console.log(response.data);
+        console.log("GetSpeakers auth objekt nakon requesta: ", auth);
         isMounted && setSpeakers(response.data);
       } catch (err) {
         console.log(err);
@@ -31,7 +37,7 @@ const Contacts = () => {
       isMounted = false;
       controller.abort();
     };
-  }, []);
+  }, [auth]);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
