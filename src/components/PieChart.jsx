@@ -2,14 +2,38 @@ import { ResponsivePie } from "@nivo/pie";
 import { tokens } from "../theme";
 import { useTheme } from "@emotion/react";
 import { mockPieData as data } from "../data/mockData";
+import { useEffect, useState } from "react";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import { Container } from "@mui/material";
 
 const PieChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const axiosPrivate = useAxiosPrivate();
+
+  const [chartData, setChartData] = useState([]);
+
+  const fetchData = async () => {
+    const controller = new AbortController();
+
+    try {
+      const response = await axiosPrivate.get("/receipts/revenueByTicketType", {
+        signal: controller.signal,
+      });
+      console.log(response.data);
+      setChartData(response.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <ResponsivePie
-      data={data}
+      data={chartData}
       theme={{
         axis: {
           domain: {
@@ -37,6 +61,47 @@ const PieChart = () => {
             fill: colors.grey[100],
           },
         },
+      }}
+      tooltip={(e) => {
+        let { datum: t } = e;
+        const tooltipStyle = {
+          color: "black",
+        };
+
+        const colorBoxStyle = {
+          width: "10px", // Set the width and height as needed
+          height: "10px",
+          backgroundColor: t.color, // Use the HEX color value
+          marginRight: "3px", // Adjust spacing as needed
+          marginTop: "3px",
+        };
+
+        return (
+          <div style={tooltipStyle}>
+            <Container
+              style={{
+                color: "inherit",
+                backgroundColor: "white",
+                height: "35px",
+                display: "flex",
+                alignItems: "center",
+                textAlign: "center",
+              }}
+            >
+              {/** Include the default tooltip content */}
+              <span>
+                <span>
+                  <div style={colorBoxStyle}></div>
+                </span>
+                {t.id}: <span style={{ fontWeight: "bold" }}>{t.value} $</span>
+              </span>
+              {/* <span>{t.id}</span>
+              <br />
+              <span>{t.value}</span>
+              <br /> */}
+            </Container>
+          </div>
+        );
       }}
       margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
       innerRadius={0.5}

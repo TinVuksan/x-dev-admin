@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataTeam } from "../../data/mockData";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import axiosConfig from "../../API/axiosConfig";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
+import { formatDateNoTime } from "../global/utils";
 
 const Team = () => {
   const [users, setUsers] = useState([]);
@@ -64,26 +65,27 @@ const Team = () => {
     {
       field: "firstName",
       headerName: "First name",
-      flex: 0.5,
+      flex: 0.2,
       cellClassName: "name-column--cell",
     },
     {
       field: "lastName",
       headerName: "Last name",
-      flex: 0.5,
+      flex: 0.2,
       cellClassName: "name-column--cell",
     },
     {
       field: "dateOfBirth",
       headerName: "Birth date",
-      type: "number",
       headerAlign: "left",
       align: "left",
+      flex: 0.3,
+      valueGetter: (params) => formatDateNoTime(params.row.dateOfBirth),
     },
     {
       field: "email",
       headerName: "Email",
-      flex: 0.5,
+      flex: 0.2,
     },
     {
       field: "roles",
@@ -184,9 +186,17 @@ const Team = () => {
             borderTop: "none",
             backgroundColor: colors.blueAccent[700],
           },
+          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+            color: `${colors.grey[100]} !important`,
+          },
         }}
       >
-        <DataGrid rows={users} columns={columns} />
+        <DataGrid
+          rows={users}
+          columns={columns}
+          components={{ Toolbar: GridToolbar }}
+          sx={{ maxWidth: "80vw" }}
+        />
       </Box>
     </Box>
   );

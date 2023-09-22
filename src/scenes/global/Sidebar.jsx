@@ -88,9 +88,8 @@ const Sidebar = () => {
             )}
           </MenuItem>
 
-          {/* USER */}
           {!isCollapsed && (
-            <Box mb="25px">
+            <Box mb="20px">
               {/* <Box display="flex" justifyContent="center" alignItems="center">
                 <img
                   alt="profile-user"
@@ -197,23 +196,9 @@ const Sidebar = () => {
               Charts
             </Typography>
             <Item
-              title="Bar Chart"
-              to="/bar"
-              icon={<BarChartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
               title="Pie Chart"
               to="/pie"
               icon={<PieChartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Line Chart"
-              to="/line"
-              icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />

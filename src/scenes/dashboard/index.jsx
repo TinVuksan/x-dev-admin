@@ -1,32 +1,83 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
-import { mockTransactions } from "../../data/mockData";
 import { geoFeatures } from "../../data/mockGeoFeatures";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
-import LineChart from "../../components/LineChart";
-import BarChart from "../../components/BarChart";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import GeographyChart from "../../components/GeographyChart";
 import StatBox from "../../components/StatBox";
-import ProgressCircle from "../../components/ProgressCircle";
-import Sidebar from "../global/Sidebar";
 import useRefreshToken from "../../hooks/useRefreshToken";
 import { useEffect } from "react";
+import { useState } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { formatDate } from "../global/utils";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const refresh = useRefreshToken();
+  const axiosPrivate = useAxiosPrivate();
+
+  const [latestTickets, setLatestTickets] = useState([]);
+  const [numbers, setNumbers] = useState({
+    users: null,
+    receipts: null,
+    revenue: null,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchRecentTickets = async () => {
+    let isMounted = true;
+    const controller = new AbortController();
+
+    // Set isLoading to true when fetching begins
+    setIsLoading(true);
+
+    try {
+      const response = await axiosPrivate.get("/receipts/latest", {
+        signal: controller.signal,
+      });
+      console.log(response.data);
+      isMounted && setLatestTickets(response.data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      // Set isLoading to false when fetching ends (whether it succeeds or fails)
+      setIsLoading(false);
+    }
+  };
+
+  const fetchNumbers = async () => {
+    try {
+      const [usersCountResponse, receiptsCountResponse, revenueResponse] =
+        await Promise.all([
+          axiosPrivate.get("/users/count"),
+          axiosPrivate.get("/receipts/count"),
+          axiosPrivate.get("/receipts/revenue"),
+        ]);
+
+      console.log(usersCountResponse.data);
+      console.log(receiptsCountResponse.data);
+      console.log(revenueResponse.data);
+
+      setNumbers({
+        users: usersCountResponse.data,
+        receipts: receiptsCountResponse.data,
+        revenue: revenueResponse.data,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
-    const extractedData = geoFeatures.features.map((item) => ({
+    geoFeatures.features.map((item) => ({
       [item.properties.name.replace(/["']/g, "")]: item.id,
     }));
-    console.log(extractedData);
+    fetchRecentTickets();
+    fetchNumbers();
   }, []);
 
   return (
@@ -34,25 +85,8 @@ const Dashboard = () => {
       <Box m="20px">
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-
-          <Box>
-            <Button
-              sx={{
-                backgroundColor: colors.blueAccent[700],
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-                padding: "10px 20px",
-              }}
-              onClick={() => refresh()}
-            >
-              <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-              Download Reports
-            </Button>
-          </Box>
         </Box>
         {/* GRID & CHARTS */}
-
         <Box
           display="grid"
           gridTemplateColumns="repeat(12,1fr)"
@@ -61,37 +95,16 @@ const Dashboard = () => {
         >
           {/* Row 1 */}
           <Box
-            gridColumn="span 3"
+            gridColumn="span 4"
             backgroundColor={colors.primary[400]}
             display="flex"
             alignItems="center"
             justifyContent="center"
           >
             <StatBox
-              title="12,361"
-              subtitle="Emails Sent"
-              progress="0.75"
-              increase="+14%"
-              icon={
-                <EmailIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-                />
-              }
-            />
-          </Box>
-
-          <Box
-            gridColumn="span 3"
-            backgroundColor={colors.primary[400]}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <StatBox
-              title="431,225"
+              title={numbers.receipts}
               subtitle="Sales Obtained"
-              progress="0.5"
-              increase="+21%"
+              progress="0"
               icon={
                 <PointOfSaleIcon
                   sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -101,88 +114,48 @@ const Dashboard = () => {
           </Box>
 
           <Box
-            gridColumn="span 3"
+            gridColumn="span 4"
             backgroundColor={colors.primary[400]}
             display="flex"
             alignItems="center"
             justifyContent="center"
           >
             <StatBox
-              title="32,441"
-              subtitle="New clients"
-              progress="0.30"
-              increase="+5%"
+              title={`${numbers.revenue} $`}
+              subtitle="Total revenue"
+              progress="0.50"
+              icon={
+                <AccountBalanceIcon
+                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                />
+              }
+            />
+          </Box>
+
+          <Box
+            gridColumn="span 4"
+            backgroundColor={colors.primary[400]}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <StatBox
+              title={numbers.users}
+              subtitle="Registered users"
+              progress="1"
               icon={
                 <PersonAddIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                  sx={{
+                    color: colors.greenAccent[600],
+                    fontSize: "26px",
+                    marginBottom: "5px",
+                  }}
                 />
               }
             />
           </Box>
 
-          <Box
-            gridColumn="span 3"
-            backgroundColor={colors.primary[400]}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <StatBox
-              title="1,325,134"
-              subtitle="Traffic Inbound"
-              progress="0.80"
-              increase="+43%"
-              icon={
-                <TrafficIcon
-                  sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-                />
-              }
-            />
-          </Box>
-
-          {/* ROW 2 */}
-          <Box
-            gridColumn="span 8"
-            gridRow="span 2"
-            backgroundColor={colors.primary[400]}
-          >
-            <Box
-              mt="25px"
-              padding="0 30px"
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Box>
-                <Typography
-                  variant="h5"
-                  fontWeight="600"
-                  color={colors.grey[100]}
-                >
-                  Revenue Generated
-                </Typography>
-                <Typography
-                  variant="h3"
-                  fontWeight="bold"
-                  color={colors.greenAccent[500]}
-                >
-                  $59,342.32
-                </Typography>
-              </Box>
-
-              <Box>
-                <IconButton>
-                  <DownloadOutlinedIcon
-                    sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                  />
-                </IconButton>
-              </Box>
-            </Box>
-            <Box height="250px" mt="-20px">
-              <LineChart isDashboard={true} />
-            </Box>
-          </Box>
-          {/* Transactions */}
+          {/* Recent Transactions */}
           <Box
             gridColumn="span 4"
             gridRow="span 2"
@@ -205,102 +178,72 @@ const Dashboard = () => {
                 Recent Transactions
               </Typography>
             </Box>
-            {mockTransactions.map((transaction, i) => (
+
+            {isLoading ? (
               <Box
-                key={`${transaction.txId}-${i}`}
                 display="flex"
-                justifyContent="space-between"
+                justifyContent="center"
+                flexDirection="column"
                 alignItems="center"
-                borderBottom={`4px solid ${colors.primary[500]}`}
-                p="15px"
+                height="200px"
               >
-                <Box>
-                  <Typography
-                    color={colors.greenAccent[500]}
-                    variant="h5"
-                    fontWeight="600"
-                  >
-                    {transaction.txId}
-                  </Typography>
-                  <Typography color={colors.grey[100]}>
-                    {transaction.user}
-                  </Typography>
-                </Box>
-                <Box color={colors.grey[100]}>{transaction.date}</Box>
-                <Box
-                  backgroundColor={colors.greenAccent[500]}
-                  p="5px 10px"
-                  borderRadius="4px"
-                >
-                  {transaction.cost}
-                </Box>
+                <CircularProgress color="secondary" />
+                <Typography variant="h6" color="secondary">
+                  Loading...
+                </Typography>
               </Box>
-            ))}
+            ) : (
+              latestTickets.map((transaction, i) => (
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  borderBottom={`4px solid ${colors.primary[500]}`}
+                  p="15px"
+                >
+                  <Box>
+                    <Typography
+                      color={colors.greenAccent[500]}
+                      variant="h5"
+                      fontWeight="600"
+                    >
+                      {transaction.userFirstName}
+                    </Typography>
+                    <Typography color={colors.grey[100]}>
+                      {transaction.userLastName}
+                    </Typography>
+                  </Box>
+                  <Box color={colors.grey[100]}>
+                    {formatDate(transaction.purchaseDate)}
+                  </Box>
+                  <Box
+                    backgroundColor={colors.greenAccent[500]}
+                    p="5px 10px"
+                    borderRadius="4px"
+                  >
+                    {transaction.ticketPrice}
+                  </Box>
+                </Box>
+              ))
+            )}
           </Box>
 
-          {/* ROW 3 */}
-
+          {/* Geography Based Traffic */}
           <Box
-            gridColumn="span 4"
+            gridColumn="span 8"
             gridRow="span 2"
             backgroundColor={colors.primary[400]}
-            p="30px"
+            p="20px"
           >
             <Typography variant="h5" fontWeight="600">
-              Campaign
-            </Typography>
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              mt="25px"
-            >
-              <ProgressCircle size="125" />
-              <Typography
-                variant="h5"
-                color={colors.greenAccent[500]}
-                sx={{ mt: "15px" }}
-              >
-                $48,352 revenue generated
-              </Typography>
-              <Typography>
-                Includes extra misc expenditures and costs
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box
-            gridColumn="span 4"
-            gridRow="span 2"
-            backgroundColor={colors.primary[400]}
-          >
-            <Typography
-              variant="h5"
-              fontWeight="600"
-              sx={{ p: "30px 30px 0 30px" }}
-            >
-              Sales quantity
-            </Typography>
-            <Box height="250px" mt="-20px">
-              <BarChart isDashboard={true} />
-            </Box>
-          </Box>
-
-          <Box
-            gridColumn="span 4"
-            gridRow="span 2"
-            backgroundColor={colors.primary[400]}
-            p="30px"
-          >
-            <Typography variant="h5" fontWeight="600" sx={{ mb: "15px" }}>
               Geography Based Traffic
             </Typography>
-            <Box height="200px">
+            <Box sx={{ height: "250px", width: "800px" }}>
               <GeographyChart isDashboard={true} />
             </Box>
           </Box>
 
-          {/*  */}
+          {/* Row 2 */}
         </Box>
       </Box>
     </>

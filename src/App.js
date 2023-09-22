@@ -9,21 +9,19 @@ import Sidebar from "./scenes/global/Sidebar";
 import Team from "./scenes/team";
 import Invoices from "./scenes/invoices";
 import Speakers from "./scenes/speakers";
-import Bar from "./scenes/bar";
 import Form from "./scenes/addSpeaker";
-import Line from "./scenes/line";
 import Pie from "./scenes/pie";
 import FAQ from "./scenes/faq";
 import Geography from "./scenes/geography";
 import Calendar from "./scenes/calendar";
 import Login from "./scenes/login";
-import { useState } from "react";
 import PersistLogin from "./components/PersistLogin/PersistLogin";
 import News from "./scenes/news";
 
 function App() {
   const [theme, colorMode] = useMode();
   const { auth } = useAuth();
+  console.log(auth);
 
   return (
     // <div className="app">
@@ -33,13 +31,13 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
-          {auth && <Sidebar />}
+          {auth.email && <Sidebar />}
           <main className="content">
-            {auth && <Topbar />}
+            {auth.email && <Topbar />}
             <Routes>
               <Route path="/" element={<Login />} />
               <Route element={<PersistLogin />}>
-                <Route element={<RequireAuth allowedRoles={"ROLE_USER"} />}>
+                <Route element={<RequireAuth allowedRoles={"ROLE_ADMIN"} />}>
                   <Route path="home" element={<Dashboard />} />
                   <Route path="team" element={<Team />} />
                   <Route path="speakers" element={<Speakers />} />
@@ -48,9 +46,7 @@ function App() {
                   <Route path="news" element={<News />} />
                   <Route path="calendar" element={<Calendar />} />
                   <Route path="faq" element={<FAQ />} />
-                  <Route path="bar" element={<Bar />} />
                   <Route path="pie" element={<Pie />} />
-                  <Route path="line" element={<Line />} />
                   <Route path="geography" element={<Geography />} />
                 </Route>
               </Route>

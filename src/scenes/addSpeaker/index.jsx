@@ -135,9 +135,14 @@ const Form = () => {
             helperText={formik.touched.bio && formik.errors.bio}
           />
           <Dropzone
-            onDrop={(acceptedFields) =>
-              formik.setFieldValue("image", acceptedFields[0])
-            }
+            onDrop={(acceptedFields) => {
+              formik.setFieldValue("image", acceptedFields[0]);
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                setPreviewImage(e.target.result);
+              };
+              reader.readAsDataURL(acceptedFields[0]);
+            }}
           >
             {({ getRootProps, getInputProps }) => (
               <Box className="dropzone" {...getRootProps()}>

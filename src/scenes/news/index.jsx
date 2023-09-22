@@ -79,19 +79,37 @@ const News = () => {
             helperText={formik.touched.title && formik.errors.title}
           />
 
-          <TextareaAutosize
+          <TextField
             label="Article body"
             minRows={8}
+            multiline
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
             value={formik.values.text}
+            error={formik.touched.text && Boolean(formik.errors.text)}
+            helperText={formik.touched.text && formik.errors.text}
             name="text"
+            variant="filled"
           />
+
+          {/* <Field
+            as={TextField}
+            label="Message"
+            name="message"
+            variant="filled"
+            multiline
+            rows={5}
+            fullWidth
+          /> */}
 
           <Dropzone
             onDrop={(acceptedFields) => {
               formik.setFieldValue("image", acceptedFields[0]);
-              console.log("Image added");
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                setPreviewImage(e.target.result);
+              };
+              reader.readAsDataURL(acceptedFields[0]);
             }}
           >
             {({ getRootProps, getInputProps }) => (

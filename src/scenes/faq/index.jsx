@@ -17,12 +17,12 @@ const FAQ = () => {
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography color={colors.greenAccent[500]} variant="h5">
-            Important question
+            Pie chart
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Very important answer that is completely correct
+            The Pie Chart shows revenue generated based on ticket type
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -30,12 +30,12 @@ const FAQ = () => {
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography color={colors.greenAccent[500]} variant="h5">
-            Important question
+            Geography chart
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Very important answer that is completely correct
+            Geography chart shows amount of users registered per country
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -43,12 +43,14 @@ const FAQ = () => {
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography color={colors.greenAccent[500]} variant="h5">
-            Important question
+            How to add new articles?
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Very important answer that is completely correct
+            We have made creating new articles extremely easy and
+            straight-forward. All you have to do is click on "Add news", fill up
+            the form, click and - BOOM! It's on the main page.
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -56,12 +58,17 @@ const FAQ = () => {
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography color={colors.greenAccent[500]} variant="h5">
-            Important question
+            How to add a new event?
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Very important answer that is completely correct
+            Adding events is pretty fun on this dashboard. You can click on the
+            day, name the event, select a speaker and it will automatically be
+            inserted on the main page schedule as an all-day event.
+            <br /> If you want, you can select "week" or "day" at the right side
+            of the calendar, and then with mouse click and drag, just select
+            when the event starts and when it ends. Cool, right?
           </Typography>
         </AccordionDetails>
       </Accordion>
@@ -69,12 +76,13 @@ const FAQ = () => {
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography color={colors.greenAccent[500]} variant="h5">
-            Important question
+            How to change user's role?
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            Very important answer that is completely correct
+            Go to "Manage Users" and click the user's role box. Yes, that
+            simple.
           </Typography>
         </AccordionDetails>
       </Accordion>

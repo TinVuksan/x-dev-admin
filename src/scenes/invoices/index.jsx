@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataInvoices } from "../../data/mockData";
 import Header from "../../components/Header";
@@ -23,6 +23,7 @@ const Invoices = () => {
           signal: controller.signal,
         });
         isMounted && setReceipts(response.data);
+        console.log(response.data);
       } catch (err) {
         console.log(err);
       }
@@ -37,7 +38,7 @@ const Invoices = () => {
   }, []);
 
   const columns = [
-    { field: "id", headerName: "Receipt Id" },
+    { field: "id", headerName: "Receipt Id", flex: 1 },
     {
       field: "ticket.id",
       headerName: "Ticket Id",
@@ -49,7 +50,7 @@ const Invoices = () => {
       field: "ticket.type",
       headerName: "Ticket type",
       flex: 1,
-      valueGetter: (params) => params.row.ticket.type,
+      valueGetter: (params) => params.row.ticket.type.toUpperCase(),
     },
     {
       field: "ticket.price",
@@ -61,6 +62,7 @@ const Invoices = () => {
       field: "purchaseDate",
       headerName: "Date",
       flex: 1,
+      valueGetter: (params) => formatDate(params.row.purchaseDate),
     },
   ];
 
@@ -94,9 +96,16 @@ const Invoices = () => {
           "& .MuiCheckbox-root": {
             color: `${colors.greenAccent[200]} !important`,
           },
+          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+            color: `${colors.grey[100]} !important`,
+          },
         }}
       >
-        <DataGrid checkboxSelection rows={receipts} columns={columns} />
+        <DataGrid
+          rows={receipts}
+          columns={columns}
+          components={{ Toolbar: GridToolbar }}
+        />
       </Box>
     </Box>
   );
